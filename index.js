@@ -8,73 +8,53 @@
 'use strict';
 
 var path = require('path');
-var placeholders = require('placeholders');
-var isObject = require('isobject');
-var merge = require('mixin-deep');
+var extend = require('extend-shallow');
+var isAbsolute = require('is-absolute');
 
 module.exports = function(config) {
   return function(app) {
     if (this.isRegistered('base-fs-rename')) return;
 
     this.define('rename', function(dest, params) {
-      if (isObject(dest)) {
-        params = dest;
-        dest = null;
-      }
-
-      params = params || {};
-      var opts = merge({}, config, this.options);
-      var fn = placeholders(opts);
-
       return function(file) {
-        for (var key in params) {
-          if (params.hasOwnProperty(key)) {
-            file[key] = params[key];
+        var opts = extend({cwd: app.cwd || process.cwd()}, app.options);
+        var data = extend({}, opts, config, params);
+        data.cwd = path.resolve(data.cwd, dest);
+        file.cwd = data.cwd;
+        data.base = data.cwd;
+
+        normalizeDir(data);
+        normalizeExt(data);
+
+        for (var key in data) {
+          if (data.hasOwnProperty(key) && (key in file)) {
+            file[key] = data[key];
           }
         }
 
-        file.base = path.resolve(file.dest || dest || this.cwd || file.base);
-
-        var data = merge({}, opts, params, copyPaths(file));
-        file.path = fn(path.resolve(file.base, file.basename), data);
-        file.base = path.dirname(file.path);
-
         // replace leading non-word chars on templates
-        if (file.basename && opts.replace === true) {
+        if (file.basename && data.replace === true) {
           file.basename = file.basename.replace(/^_/, '.');
           file.basename = file.basename.replace(/^\$/, '');
         }
 
+        file.path = path.resolve(file.base, file.basename);
         return file.base;
-      }.bind(this);
+      };
     });
   };
 };
 
-/**
- * Since vinyl file paths are getters/setters, we need to
- * copy paths from `file` onto a plain object so the object
- * can be used as context for resolving path params.
- */
-
-function copyPaths(file, fn) {
-  var paths = {};
-  paths.cwd = file.cwd;
-  paths.base = file.base;
-  paths.path = file.path;
-  paths.absolute = path.resolve(file.path);
-  paths.dirname = file.dirname;
-  paths.relative = file.relative;
-  paths.basename = file.basename;
-  paths.extname = file.extname;
-  paths.ext = file.extname;
-
-  paths.filename = file.stem;
-  paths.name = file.stem;
-  paths.stem = file.stem;
-  if (typeof fn === 'function') {
-    var val = fn(paths);
-    if (val) paths = val;
+function normalizeDir(opts) {
+  var dir = opts.dir || opts.dirname;
+  if (dir && !isAbsolute(dir)) {
+    opts.dirname = path.resolve(opts.cwd, dir);
   }
-  return paths;
+}
+
+function normalizeExt(opts) {
+  var ext = opts.extname || opts.ext;
+  if (ext && ext.charAt(0) !== '.') {
+    opts.extname = '.' + ext;
+  }
 }

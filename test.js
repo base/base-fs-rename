@@ -69,21 +69,6 @@ describe('base-rename', function() {
           });
         });
     });
-
-    it('should replace params', function(cb) {
-      base = new Base();
-      base.use(rename());
-      base.use(vfs());
-
-      base.src('fixtures/*')
-        .pipe(base.dest(base.rename(':dir/:basename', {dir: 'actual/foo'})))
-        .on('end', function() {
-          fs.exists('actual/foo/a.txt', function(exists) {
-            assert(exists);
-            cb();
-          });
-        });
-    });
   });
 });
 
