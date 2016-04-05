@@ -12,7 +12,8 @@ var extend = require('extend-shallow');
 var isAbsolute = require('is-absolute');
 
 module.exports = function(config) {
-  return function(app) {
+  return function plugin(app) {
+    if (this.isView || this.isCollection) return;
     if (this.isRegistered('base-fs-rename')) return;
 
     this.define('rename', function(dest, params) {
@@ -42,6 +43,8 @@ module.exports = function(config) {
         return file.base;
       };
     });
+
+    return plugin;
   };
 };
 
