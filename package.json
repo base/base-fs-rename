@@ -2,11 +2,11 @@
   "name": "base-fs-rename",
   "description": "Plugin for 'base' applications that adds a `rename` method that can be passed to `app.dest()` (this is an instance plugin, not pipeline plugin)",
   "version": "0.1.1",
-  "homepage": "https://github.com/jonschlinkert/base-fs-rename",
+  "homepage": "https://github.com/node-base/base-fs-rename",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
-  "repository": "jonschlinkert/base-fs-rename",
+  "repository": "node-base/base-fs-rename",
   "bugs": {
-    "url": "https://github.com/jonschlinkert/base-fs-rename/issues"
+    "url": "https://github.com/node-base/base-fs-rename/issues"
   },
   "license": "MIT",
   "files": [
@@ -31,7 +31,12 @@
     "mocha": "*"
   },
   "verb": {
+    "run": true,
+    "toc": false,
     "layout": "default",
+    "tasks": [
+      "readme"
+    ],
     "plugins": [
       "gulp-format-md"
     ],
@@ -39,6 +44,12 @@
       "list": [
         "base"
       ]
+    },
+    "reflinks": [
+      "verb"
+    ],
+    "lint": {
+      "reflinks": true
     }
   }
 }
