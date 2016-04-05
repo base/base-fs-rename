@@ -37,8 +37,8 @@ describe('base-rename', function() {
       base.src('fixtures/a.txt')
         .pipe(base.dest(base.rename('actual')))
         .on('end', function() {
-          fs.exists('actual/a.txt', function(exists) {
-            assert(exists);
+          fs.stat('actual/a.txt', function(err) {
+            assert(!err);
             cb();
           });
         });
@@ -48,8 +48,8 @@ describe('base-rename', function() {
       base.src('fixtures/a.txt')
         .pipe(base.dest(base.rename('actual', {basename: 'foo.txt'})))
         .on('end', function() {
-          fs.exists('actual/foo.txt', function(exists) {
-            assert(exists);
+          fs.stat('actual/foo.txt', function(err) {
+            assert(!err);
             cb();
           });
         });
@@ -63,8 +63,8 @@ describe('base-rename', function() {
       base.src('fixtures/*')
         .pipe(base.dest(base.rename('actual')))
         .on('end', function() {
-          fs.exists('actual/.dotfile', function(exists) {
-            assert(exists);
+          fs.stat('actual/.dotfile', function(err) {
+            assert(!err);
             cb();
           });
         });
