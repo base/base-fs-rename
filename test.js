@@ -17,6 +17,7 @@ describe('base-rename', function() {
 
     it('should register as a plugin', function() {
       base = new Base();
+      base.isApp = true;
       base.use(rename());
       assert.equal(typeof base.rename, 'function');
     });
@@ -25,6 +26,7 @@ describe('base-rename', function() {
   describe('rename', function() {
     beforeEach(function() {
       base = new Base();
+      base.isApp = true;
       base.use(rename());
       base.use(vfs());
     });
@@ -57,6 +59,7 @@ describe('base-rename', function() {
 
     it('should replace non-word characters when opts.replace is true', function(cb) {
       base = new Base();
+      base.isApp = true;
       base.use(rename({ replace: true }));
       base.use(vfs());
 

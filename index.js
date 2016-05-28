@@ -8,18 +8,16 @@
 'use strict';
 
 var path = require('path');
-var extend = require('extend-shallow');
-var isAbsolute = require('is-absolute');
+var utils = require('./utils');
 
 module.exports = function(config) {
   return function plugin(app) {
-    if (this.isView || this.isCollection) return;
-    if (this.isRegistered('base-fs-rename')) return;
+    if (!utils.isValid(app)) return;
 
     this.define('rename', function(dest, params) {
       return function(file) {
-        var opts = extend({cwd: app.cwd || process.cwd()}, app.options);
-        var data = extend({}, opts, config, params);
+        var opts = utils.merge({cwd: app.cwd || process.cwd()}, app.options);
+        var data = utils.merge({}, opts, config, params);
         data.cwd = path.resolve(data.cwd, dest);
         file.cwd = data.cwd;
         data.base = data.cwd;
@@ -38,19 +36,17 @@ module.exports = function(config) {
           file.basename = file.basename.replace(/^_/, '.');
           file.basename = file.basename.replace(/^\$/, '');
         }
-
         file.path = path.resolve(file.base, file.basename);
         return file.base;
       };
     });
-
     return plugin;
   };
 };
 
 function normalizeDir(opts) {
   var dir = opts.dir || opts.dirname;
-  if (dir && !isAbsolute(dir)) {
+  if (dir && !utils.isAbsolute(dir)) {
     opts.dirname = path.resolve(opts.cwd, dir);
   }
 }
