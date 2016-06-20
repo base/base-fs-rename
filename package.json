@@ -1,7 +1,7 @@
 {
   "name": "base-fs-rename",
   "description": "Plugin for 'base' applications that adds a `rename` method that, when called, can be passed to `app.dest()` as the rename function (this is an instance plugin, not pipeline plugin)",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "homepage": "https://github.com/node-base/base-fs-rename",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "node-base/base-fs-rename",
