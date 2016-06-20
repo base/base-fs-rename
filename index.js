@@ -12,30 +12,46 @@ var utils = require('./utils');
 
 module.exports = function(config) {
   return function plugin(app) {
-    if (!utils.isValid(app)) return;
+    if (!utils.isValid(app, 'base-fs-rename', ['app', 'collection'])) return;
 
     this.define('rename', function(dest, params) {
+      if (typeof this.cwd !== 'string') {
+        this.use(utils.cwd());
+      }
+
+      if (typeof dest !== 'string') {
+        params = dest;
+        dest = null;
+      }
+
       return function(file) {
-        var opts = utils.merge({cwd: app.cwd || process.cwd()}, app.options);
-        var data = utils.merge({}, opts, config, params);
-        data.cwd = path.resolve(data.cwd, dest);
-        file.cwd = data.cwd;
-        data.base = data.cwd;
+        var opts = utils.merge({}, app.options, config, params);
+        opts.cwd = path.resolve(opts.dest || app.cwd);
+        if (typeof dest === 'string') {
+          opts.cwd = path.resolve(opts.cwd, dest);
+        }
 
-        normalizeDir(data);
-        normalizeExt(data);
+        file.cwd = opts.cwd;
+        file.base = opts.cwd;
 
-        for (var key in data) {
-          if (data.hasOwnProperty(key) && (key in file)) {
-            file[key] = data[key];
+        normalizeDir(opts);
+        normalizeExt(opts);
+
+        for (var key in opts) {
+          if (opts.hasOwnProperty(key) && (key in file)) {
+            file[key] = opts[key];
           }
         }
 
-        // replace leading non-word chars on templates
-        if (file.basename && data.replace === true) {
-          file.basename = file.basename.replace(/^_/, '.');
-          file.basename = file.basename.replace(/^\$/, '');
+        if (typeof params === 'string') {
+          file.basename = params;
         }
+
+        // replace leading non-word chars in the names of dotfile and config templates
+        if (file.basename && opts.replace !== false) {
+          file.basename = file.basename.replace(/^_/, '.').replace(/^\$/, '');
+        }
+
         file.path = path.resolve(file.base, file.basename);
         return file.base;
       };

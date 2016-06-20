@@ -16,8 +16,7 @@ describe('base-rename', function() {
     });
 
     it('should register as a plugin', function() {
-      base = new Base();
-      base.isApp = true;
+      base = new Base({isApp: true});
       base.use(rename());
       assert.equal(typeof base.rename, 'function');
     });
@@ -25,8 +24,7 @@ describe('base-rename', function() {
 
   describe('rename', function() {
     beforeEach(function() {
-      base = new Base();
-      base.isApp = true;
+      base = new Base({isApp: true});
       base.use(rename());
       base.use(vfs());
     });
@@ -49,6 +47,17 @@ describe('base-rename', function() {
     it('should rename a file', function(cb) {
       base.src('fixtures/a.txt')
         .pipe(base.dest(base.rename('actual', {basename: 'foo.txt'})))
+        .on('end', function() {
+          fs.stat('actual/foo.txt', function(err) {
+            assert(!err);
+            cb();
+          });
+        });
+    });
+
+    it('should rename a file with second arg as a string', function(cb) {
+      base.src('fixtures/a.txt')
+        .pipe(base.dest(base.rename('actual', 'foo.txt')))
         .on('end', function() {
           fs.stat('actual/foo.txt', function(err) {
             assert(!err);
